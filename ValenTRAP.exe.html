@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SECURE TERMINAL // VALENTINE PROTOCOL</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --term-green: #0f0;
+            --term-red: #ff003c;
+            --bg-color: #050505;
+            --glitch-offset: 2px;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--term-green);
+            font-family: 'Share Tech Mono', monospace;
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-shadow: 0 0 5px var(--term-green);
+        }
+
+        /* --- CRT SCREEN EFFECTS --- */
+        body::after {
+            content: " ";
+            display: block;
+            position: absolute;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            right: 0;
+            background: rgba(18, 16, 16, 0.1);
+            opacity: 0;
+            z-index: 2;
+            pointer-events: none;
+            animation: flicker 0.15s infinite;
+        }
+
+        body::before {
+            content: " ";
+            display: block;
+            position: absolute;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            z-index: 2;
+            background-size: 100% 2px, 3px 100%;
+            pointer-events: none;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 600px;
+            z-index: 10;
+            padding: 20px;
+            border: 1px solid var(--term-green);
+            background: rgba(0, 10, 0, 0.8);
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.2);
+            min-height: 400px;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        /* --- TYPOGRAPHY --- */
+        h1, h2, p {
+            margin: 10px 0;
+            line-height: 1.4;
+        }
+
+        .cursor {
+            display: inline-block;
+            width: 10px;
+            height: 1.2em;
+            background-color: var(--term-green);
+            animation: blink 1s step-end infinite;
+            vertical-align: bottom;
+        }
+
+        /* --- INTERACTIVE ELEMENTS --- */
+        .btn-hack {
+            background: transparent;
+            border: 2px solid var(--term-green);
+            color: var(--term-green);
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 1.2rem;
+            padding: 15px 30px;
+            margin-top: 30px;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            transition: 0.3s;
+            box-shadow: 0 0 10px rgba(0, 255, 0, 0.1);
+            position: relative;
+            overflow: hidden;
+            display: none; /* Hidden until loaded */
+        }
+
+        .btn-hack:hover {
+            background: var(--term-green);
+            color: black;
+            box-shadow: 0 0 20px var(--term-green);
+        }
+
+        /* --- TRAP / RED MODE --- */
+        body.breach-mode {
+            animation: red-flash 0.5s;
+        }
+
+        .container.breach-mode {
+            border-color: var(--term-red);
+            box-shadow: 0 0 30px var(--term-red);
+            animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
+        }
+
+        .text-breach {
+            color: var(--term-red);
+            text-shadow: 2px 2px var(--term-green); /* Glitchy shadow */
+            font-weight: bold;
+            font-size: 1.3rem;
+        }
+
+        .danger-header {
+            font-size: 2rem;
+            color: var(--term-red);
+            text-align: center;
+            border-bottom: 2px dashed var(--term-red);
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+            animation: glitch-anim 1s infinite linear alternate-reverse;
+        }
+
+        /* --- ANIMATIONS --- */
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+
+        @keyframes shake {
+            10%, 90% { transform: translate3d(-2px, 0, 0); }
+            20%, 80% { transform: translate3d(4px, 0, 0); }
+            30%, 50%, 70% { transform: translate3d(-6px, 0, 0); }
+            40%, 60% { transform: translate3d(6px, 0, 0); }
+        }
+
+        @keyframes red-flash {
+            0% { background-color: var(--bg-color); }
+            50% { background-color: #300; }
+            100% { background-color: var(--bg-color); }
+        }
+
+        @keyframes glitch-anim {
+            0% { text-shadow: -2px 3px 0 red, 2px -3px 0 blue; transform: translate(var(--glitch-offset)); }
+            20% { text-shadow: -2px -3px 0 red, 2px -3px 0 blue; }
+            40% { text-shadow: -2px 3px 0 red, 2px -3px 0 blue; transform: translate(0); }
+            60% { text-shadow: -2px 3px 0 red, 2px -3px 0 blue; }
+            80% { text-shadow: -2px -3px 0 red, 2px -3px 0 blue; transform: translate(-1px); }
+            100% { text-shadow: -2px 3px 0 red, 2px -3px 0 blue; }
+        }
+
+        /* --- UTILS --- */
+        .hidden { display: none; }
+        .scan-line {
+            width: 100%;
+            height: 2px;
+            background: rgba(0, 255, 0, 0.5);
+            position: absolute;
+            z-index: 5;
+            animation: scan 3s linear infinite;
+            opacity: 0.3;
+        }
+
+        @keyframes scan {
+            0% { top: 0%; }
+            100% { top: 100%; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="scan-line"></div>
+
+    <div class="container" id="terminal">
+        <div id="console-output"></div>
+        <button id="hackBtn" class="btn-hack">ACCESS VALENTINE SYSTEM 💀</button>
+    </div>
+
+    <script>
+        // --- SOUND ENGINE (Web Audio API for zero dependencies) ---
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        
+        function playBeep(freq = 800, type = 'square', duration = 0.05) {
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            const osc = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+            osc.type = type;
+            osc.frequency.value = freq;
+            osc.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+            osc.start();
+            gainNode.gain.exponentialRampToValueAtTime(0.00001, audioCtx.currentTime + duration);
+            osc.stop(audioCtx.currentTime + duration);
+        }
+
+        function playAlarm() {
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            const osc = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+            osc.type = 'sawtooth';
+            osc.frequency.setValueAtTime(400, audioCtx.currentTime);
+            osc.frequency.linearRampToValueAtTime(100, audioCtx.currentTime + 0.3);
+            osc.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+            osc.start();
+            gainNode.gain.setValueAtTime(0.2, audioCtx.currentTime);
+            gainNode.gain.linearRampToValueAtTime(0.001, audioCtx.currentTime + 0.3);
+            osc.stop(audioCtx.currentTime + 0.3);
+        }
+
+        // --- DOM ELEMENTS ---
+        const output = document.getElementById('console-output');
+        const btn = document.getElementById('hackBtn');
+        const terminal = document.getElementById('terminal');
+        const body = document.body;
+
+        // --- TEXT DATA ---
+        const bootText = [
+            "Initializing secure connection...",
+            "Encrypting emotional protocols... [DONE]",
+            "Scanning user biometrics...",
+            "Target identified: YOU",
+            "Status: VULNERABLE",
+            "Ready to breach Valentine mainframe."
+        ];
+
+        const trapText = [
+            { text: "⚠️ SYSTEM BREACH DETECTED ⚠️", class: "danger-header" },
+            { text: "INTRUDER ALERT! INTRUDER ALERT!", class: "text-breach" },
+            { text: "Analyzing love_life.log...", class: "text-breach", delay: 800 },
+            { text: "Scanning heart_data...", class: "text-breach", delay: 1500 },
+            { text: "CRITICAL ERROR: Valentine Object = NOT FOUND 💔", class: "text-breach", delay: 2500 },
+            { text: "Deploying single-mode protection 🛡️", class: "text-breach", delay: 3500 },
+            { text: "LOL 😂 YOU FELL FOR IT", class: "text-breach", delay: 4500 },
+            { text: "Single users: SAFE ✅", class: "text-breach", delay: 5500 },
+            { text: "Couples: RUN.exe initiated 🏃‍♂️💨", class: "text-breach", delay: 6500 }
+        ];
+
+        // --- TYPEWRITER FUNCTION ---
+        function typeLine(text, className = "", callback = null) {
+            const p = document.createElement('p');
+            if (className) p.className = className;
+            output.appendChild(p);
+            
+            let i = 0;
+            const interval = setInterval(() => {
+                p.textContent += text.charAt(i);
+                playBeep(1200, 'square', 0.03); // High pitch typing beep
+                i++;
+                // Scroll to bottom
+                terminal.scrollTop = terminal.scrollHeight;
+                
+                if (i >= text.length) {
+                    clearInterval(interval);
+                    if (callback) callback();
+                }
+            }, 30); // Typing speed
+        }
+
+        // --- BOOT SEQUENCE ---
+        function runBootSequence(index = 0) {
+            if (index < bootText.length) {
+                typeLine(bootText[index], "", () => {
+                    setTimeout(() => runBootSequence(index + 1), 300);
+                });
+            } else {
+                // Show button after boot
+                const cursor = document.createElement('span');
+                cursor.className = 'cursor';
+                output.appendChild(cursor);
+                btn.style.display = 'block';
+            }
+        }
+
+        // --- TRAP SEQUENCE ---
+        btn.addEventListener('click', () => {
+            // 1. UI FREAKOUT
+            btn.style.display = 'none';
+            document.querySelector('.cursor').remove();
+            output.innerHTML = ""; // Clear screen
+            
+            body.classList.add('breach-mode');
+            terminal.classList.add('breach-mode');
+
+            // 2. Play Alarm Loop
+            let alarmCount = 0;
+            const alarmInterval = setInterval(() => {
+                playAlarm();
+                alarmCount++;
+                if (alarmCount > 5) clearInterval(alarmInterval);
+            }, 400);
+
+            // 3. DISPLAY TRAP MESSAGES
+            let delayAccumulator = 0;
+
+            trapText.forEach((item) => {
+                const itemDelay = item.delay || 0;
+                
+                setTimeout(() => {
+                    if (item.class === 'danger-header') {
+                        // Headers appear instantly
+                        const h2 = document.createElement('h2');
+                        h2.className = item.class;
+                        h2.textContent = item.text;
+                        output.appendChild(h2);
+                        playBeep(100, 'sawtooth', 0.2); // Low bass sound
+                    } else {
+                        // Text types out
+                        typeLine(item.text, item.class);
+                    }
+                }, delayAccumulator + itemDelay);
+                
+                // Increase base delay for sequential items if needed, 
+                // but here we use absolute delays in the object for precision
+            });
+        });
+
+        // Start on Load
+        window.onload = () => {
+            // User interaction required for AudioContext usually, 
+            // but we'll try to init. If it stays suspended, the click on button resumes it.
+            setTimeout(() => runBootSequence(), 500);
+        };
+
+    </script>
+</body>
+</html>
